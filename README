@@ -5,11 +5,11 @@ Title Page
 
      Text::Column - Format tables from hashes and arrays suitable for PODs
 
-     Revision: B
+     Revision: C
 
-     Version: 0.03
+     Version: 0.04
 
-     Date: 2003/09/15
+     Date: 2003/09/19
 
      Prepared for: General Public 
 
@@ -48,7 +48,7 @@ Title Page
     by formatting raw array and hash data into tables for inclusion in PODS
 
   1.3 Document overview.
-    This document releases Text::Column version 0.03 providing a description
+    This document releases Text::Column version 0.04 providing a description
     of the inventory, installation instructions and other information
     necessary to utilize and track this release.
 
@@ -59,8 +59,8 @@ Title Page
   3.1 Inventory of materials released.
     This document releases the file found at the following repository(s):
 
-       http://www.softwarediamonds/packages/Text-Column-0.03
-       http://www.perl.com/CPAN-local/authors/id/S/SO/SOFTDIA/Text-Column-0.03
+       http://www.softwarediamonds/packages/Text-Column-0.04
+       http://www.perl.com/CPAN-local/authors/id/S/SO/SOFTDIA/Text-Column-0.04
 
     Restrictions regarding duplication and license provisions are as
     follows:
@@ -104,16 +104,17 @@ Title Page
 
      file                                                         version date       comment
      ------------------------------------------------------------ ------- ---------- ------------------------
-     lib/Docs/Site_SVD/Text_Column.pm                             0.03    2003/09/15 revised 0.02
-     MANIFEST                                                     0.03    2003/09/15 generated, replaces 0.02
-     Makefile.PL                                                  0.03    2003/09/15 generated, replaces 0.02
-     README                                                       0.03    2003/09/15 generated, replaces 0.02
-     lib/Text/Column.pm                                           1.09    2003/07/05 unchanged
+     lib/Docs/Site_SVD/Text_Column.pm                             0.04    2003/09/19 revised 0.03
+     MANIFEST                                                     0.04    2003/09/19 generated, replaces 0.03
+     Makefile.PL                                                  0.04    2003/09/19 generated, replaces 0.03
+     README                                                       0.04    2003/09/19 generated, replaces 0.03
+     lib/Text/Column.pm                                           1.1     2003/09/19 revised 1.09
      t/Text/Column.d                                              0.01    2003/07/27 unchanged
      t/Text/Column.pm                                             0.01    2003/07/05 unchanged
-     t/Text/Column.t                                              0.05    2003/09/15 revised 0.04
-     tlib/File/Package.pm                                         1.12    2003/09/15 revised 1.1
-     tlib/Test/Tech.pm                                            1.13    2003/09/15 revised 1.11
+     t/Text/Column.t                                              0.05    2003/09/15 unchanged
+     tlib/File/Package.pm                                         1.12    2003/09/19 unchanged
+     tlib/Test/Tech.pm                                            1.14    2003/09/19 revised 1.13
+     tlib/Data/Secs2.pm                                           1.14    2003/09/19 new
 
   3.3 Changes
     The changes to the previous version are as follows:
@@ -161,6 +162,10 @@ Title Page
         installers about untar not being able to change to a directory with
         mode of 666.
 
+    Text-Column-0.04
+        Add the module 'Data::Secs2' in the tlib that provides 'stringify'
+        support for the 'Test::Tech' module.
+
   3.4 Adaptation data.
     This installation requires that the installation site has the Perl
     programming language installed. There are no other additional
@@ -186,8 +191,8 @@ Title Page
 
         The distribution file is at the following respositories:
 
-           http://www.softwarediamonds/packages/Text-Column-0.03
-           http://www.perl.com/CPAN-local/authors/id/S/SO/SOFTDIA/Text-Column-0.03
+           http://www.softwarediamonds/packages/Text-Column-0.04
+           http://www.perl.com/CPAN-local/authors/id/S/SO/SOFTDIA/Text-Column-0.04
 
     Prerequistes.
          None.

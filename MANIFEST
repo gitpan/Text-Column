@@ -8,3 +8,4 @@ t/Text/Column.pm
 t/Text/Column.t
 tlib/File/Package.pm
 tlib/Test/Tech.pm
+tlib/Data/Secs2.pm

@@ -10,9 +10,14 @@ use warnings;
 use warnings::register;
 
 use vars qw($VERSION $DATE $FILE);
-$VERSION = '1.09';
-$DATE = '2003/07/05';
+$VERSION = '1.1';
+$DATE = '2003/09/19';
 $FILE = __FILE__;
+
+use vars qw(@ISA @EXPORT_OK);
+require Exporter;
+@ISA= qw(Exporter);
+@EXPORT_OK = qw(format_hash_table format_array_table);
 
 ######
 # Format hash table
@@ -20,7 +25,13 @@ $FILE = __FILE__;
 sub format_hash_table
 {
 
-    my (undef, $h_p, $width_p, $header_p) = @_;
+    ######
+    # This subroutine uses no object data; therefore,
+    # drop any class or object.
+    #
+    shift @_ if UNIVERSAL::isa($_[0],__PACKAGE__);
+
+    my ($h_p, $width_p, $header_p) = @_;
 
     unless (ref($h_p) eq 'HASH') {
         warn "# Table to format must be an hash table\n";
@@ -81,7 +92,13 @@ sub format_hash_table
 sub format_array_table
 {
 
-    my (undef, $a_p, $width_p, $header_p) = @_;
+    ######
+    # This subroutine uses no object data; therefore,
+    # drop any class or object.
+    #
+    shift @_ if UNIVERSAL::isa($_[0],__PACKAGE__);
+
+    my ($a_p, $width_p, $header_p) = @_;
 
     unless (ref($a_p) eq 'ARRAY') {
         warn "# Table to format must be an array table\n";
@@ -308,28 +325,170 @@ follow on the next lines. For example,
   L<test3>             L<requirement2>
  '
 
-
 =head1 QUALITY ASSURANCE
 
-The module "t::Text::Column" is the Software
-Test Description(STD) module for the "Text::Column".
-module. 
+Running the test script 'Column.t' found in
+the "Text-Column-$VERSION.tar.gz" distribution file verifies
+the requirements for this module.
 
-To generate all the test output files, 
-run the generated test script,
-run the demonstration script and include it results in the "Text::Column" POD,
+All testing software and documentation
+stems from the 
+Software Test Description (L<STD|Docs::US_DOD::STD>)
+program module 't::Text::Column',
+found in the distribution file 
+"Text-Column-$VERSION.tar.gz". 
+
+The 't::Text::Column' L<STD|Docs::US_DOD::STD> POD contains
+a tracebility matix between the
+requirements established above for this module, and
+the test steps identified by a
+'ok' number from running the 'Column.t'
+test script.
+
+The t::Text::Column' L<STD|Docs::US_DOD::STD>
+program module '__DATA__' section contains the data 
+to perform the following:
+
+=over 4
+
+=item *
+
+to generate the test script 'Column.t'
+
+=item *
+
+generate the tailored 
+L<STD|Docs::US_DOD::STD> POD in
+the 't::Text::Column' module, 
+
+=item *
+
+generate the 'Column.d' demo script, 
+
+=item *
+
+replace the POD demonstration section
+herein with the demo script
+'Column.d' output, and
+
+=item *
+
+run the test script using Test::Harness
+with or without the verbose option,
+
+=back
+
+To perform all the above, prepare
+and run the automation software as 
+follows:
+
+=over 4
+
+=item *
+
+Install "Test_STDmaker-$VERSION.tar.gz"
+from one of the respositories only
+if it has not been installed:
+
+=over 4
+
+=item *
+
+http://www.softwarediamonds/packages/
+
+=item *
+
+http://www.perl.com/CPAN-local/authors/id/S/SO/SOFTDIA/
+
+=back
+  
+=item *
+
+manually place the script tmake.pl
+in "Test_STDmaker-$VERSION.tar.gz' in
+the site operating system executable 
+path only if it is not in the 
+executable path
+
+=item *
+
+place the 't::Text::Column' at the same
+level in the directory struture as the
+directory holding the 'Text::Column'
+module
+
+=item *
+
 execute the following in any directory:
 
- tmake -verbose -replace -run -pm=t::Text::Column
+ tmake -test_verbose -replace -run -pm=t::Text::Column
 
-Note that F<tmake.pl> must be in the execution path C<$ENV{PATH}>
-and the "t" directory containing  "t::Text::Column" on the same level as 
-the "lib" directory that
-contains the "Text::Column" module.
-
-
+=back
 
 =head1 NOTES
+
+=head2 FILES
+
+The installation of the
+"Text-Column-$VERSION.tar.gz" distribution file
+installs the 'Docs::Site_SVD::Text_Column'
+L<SVD|Docs::US_DOD::SVD> program module.
+
+The __DATA__ data section of the 
+'Docs::Site_SVD::Text_Column' contains all
+the necessary data to generate the POD
+section of 'Docs::Site_SVD::Text_Column' and
+the "Text-Column-$VERSION.tar.gz" distribution file.
+
+To make use of the 
+'Docs::Site_SVD::Text_Column'
+L<SVD|Docs::US_DOD::SVD> program module,
+perform the following:
+
+=over 4
+
+=item *
+
+install "ExtUtils-SVDmaker-$VERSION.tar.gz"
+from one of the respositories only
+if it has not been installed:
+
+=over 4
+
+=item *
+
+http://www.softwarediamonds/packages/
+
+=item *
+
+http://www.perl.com/CPAN-local/authors/id/S/SO/SOFTDIA/
+
+=back
+
+=item *
+
+manually place the script vmake.pl
+in "ExtUtils-SVDmaker-$VERSION.tar.gz' in
+the site operating system executable 
+path only if it is not in the 
+executable path
+
+=item *
+
+Make any appropriate changes to the
+__DATA__ section of the 'Docs::Site_SVD::Text_Column'
+module.
+For example, any changes to
+'Text::Column' will impact the
+at least 'Changes' field.
+
+=item *
+
+Execute the following:
+
+ vmake readme_html all -pm=Docs::Site_SVD::Text_Column
+
+=back
 
 =head2 AUTHOR
 

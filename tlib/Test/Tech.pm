@@ -10,12 +10,11 @@ use warnings;
 use warnings::register;
 
 use Test ();   # do not import the "Test" subroutines
-use Data::Strify qw(stringify);
-use Data::Dumper;
+use Data::Secs2 qw(stringify);
 
 use vars qw($VERSION $DATE $FILE);
-$VERSION = '1.13';
-$DATE = '2003/09/15';
+$VERSION = '1.14';
+$DATE = '2003/09/19';
 $FILE = __FILE__;
 
 use vars qw(@ISA @EXPORT_OK);
@@ -27,11 +26,10 @@ require Exporter;
 #
 # Keep all data hidden in a local hash
 # 
-# Too bad "Test" and "Data::Dumper" are not objectified
+# Too bad "Test" is not objectified
 #
-# Senseless to objectify "Test::Tech" if unless "Test" and "Data::Dumper"
-# are objectified
 #
+
 my $tech_p = new Test::Tech;  # quasi objectify by using $tech_p instead of %tech
 
 sub new
@@ -46,11 +44,6 @@ sub new
    my ($class, @args) = @_;
    $class = ref($class) if( ref($class) );
    my $self = bless {}, $class;
-
-   ########
-   # Make  Data::Dumper variables visible to tech_config
-   #
-   $self->{Dumper} = new Data::Strify;
 
    ######
    # Make Test variables visible to tech_config
@@ -74,73 +67,12 @@ sub new
    #
    $self->{Skip_Tests} = 0;
 
-   #######
-   # Probe for internal storage
-   #
-   # The &Data::Dumper::Dumper subroutine stringifies the internal Perl variable. 
-   # Different Perls keep the have different internal formats for numbers. Some
-   # keep them as binary numbers, while others as strings. The ones that keep
-   # them as strings may be out of spec. In any case they have been let loose in
-   # the wild so the test scripts that use Data::Dumper must deal with them.
-   #
-   # This is perl, v5.6.1 built for MSWin32-x86-multi-thread 
-   # (with 1 registered patch, see perl -V for more detail)
-   #
-   # Copyright 1987-2001, Larry Wall 
-   #
-   # Binary build 631 provided by ActiveState Tool Corp. http://www.ActiveState.com
-   # Built 17:16:22 Jan 2 2002
-   #
-   #
-   # Perl may be copied only under the terms of either the Artistic License or the
-   # GNU General Public License, which may be found in the Perl 5 source kit.
-   # 
-   # Complete documentation for Perl, including FAQ lists, should be found on
-   # this system using `man perl' or `perldoc perl'. If you have access to the
-   # Internet, point your browser at http://www.perl.com/, the Perl Home Page.
-   #
-   # ~~~~~~~
-   #
-   # Wall, Christiansen and Orwant on Perl internal storage
-   #
-   # Page 351 of Programming Perl, Third Addition, Overloadable Operators
-   # quote: 
-   #
-   # Conversion operators: ``'', 0+, bool
-   #
-   # These three keys let you provide behaviors for Perl's automatic conversions
-   # to strings, numbers, and Boolean values, respectively.
-   #
-   # ~~~~~~~
-   #
-   # Internal Storage of Perls that are in the wild
-   #
-   # string - Perl v5.6.1 MSWin32-x86-multi-thread, ActiveState build 631, binary
-   # number - Perl version 5.008 for solaris
-   #
-   # Perls in the wild with internal storage of string may be mutants that need to
-   # be hunted down killed.
-   #
-   # The ActiveState v5.8 no longer produce a internal storage of string for 0+$number
-   #
-   my $probe = 3;
-   my $actual = Dumper([0+$probe]);
-   if( $actual eq Dumper([3]) ) {
-      $self->{Internal_Number} = 'number';
-   }
-   elsif ( $actual eq Dumper(['3']) ) {
-      $self->{Internal_Number} = 'string';
-   }
-   else {
-      $self->{Internal_Number} = 'undetermine';
-   }
-
    $self;
 }
  
 
 #####
-# Restore the Test:: and Data::Dumper back to where they were found
+# Restore the Test:: back to where they were found
 #
 sub DESTROY
 {
@@ -155,11 +87,9 @@ sub DESTROY
    $Test::planned = $self->{TestDefault}->{planned};
    $Test::TESTERR = $self->{TestDefault}->{TESTERR} if defined $Test::TESTERR;
 
-   $self->{Dumper}->finish( ) if defined $self->{Dumper};   
-
 }
 
-sub finish { DESTORY(@_) };
+*finish = *DESTORY; # finish is alias for DESTORY
 
 
 ######
@@ -178,12 +108,11 @@ sub plan
 
    ###############
    #  
-   # Establish default for Test and Data::Dumper
+   # Establish default for Test
    #
    # Test 1.24 resets global variables in plan which
    # never happens in 1.15
    #
-   $Data::Dumper::Terse = 1; 
    $Test::TestLevel = 1;
 
    my $loctime = localtime();
@@ -206,9 +135,8 @@ sub plan
 EOF
 
    print $Test::TESTOUT <<"EOF";
-# Number Storage: $self->{Internal_Number}
 # Test::Tech    : $VERSION
-# Data::Dumper  : $Data::Dumper::VERSION
+# Data::Secs2   : $Data::Secs2::VERSION
 # =cut 
 EOF
 
@@ -386,6 +314,7 @@ sub tech_config
 #
 sub demo
 {
+   use Data::Dumper;
 
    ######
    # This subroutine uses no object data; therefore,
@@ -662,17 +591,6 @@ below configuration variables
 
  dot index              contents 
  --------------------   --------------
- Dumper.Terse          \$Data::Dumper::Terse
- Dumper.Indent         \$Data::Indent
- Dumper.Purity         \$Data::Purity
- Dumper.Pad            \$Data::Pad
- Dumper.Varname        \$Data::Varname
- Dumper.Useqq          \$Data::Useqq
- Dumper.Freezer        \$Data::Freezer
- Dumper.Toaster        \$Data::Toaster
- Dumper.Deepcopy       \$Data::Deepcopy
- Dumper.Quotekeys      \$Data::Quotekeys
- Dumper.Maxdepth       \$Data::Maxdepth
  Test.ntest            \$Test::ntest
  Test.TESTOUT          \$Test::TESTOUT
  Test.TestLevel        \$Test::TestLevel
@@ -727,6 +645,11 @@ a copy of version 1.15 and 1.24 of the 'Test' module
 and runs the tests using test two versions.
 
 =head1 NOTES
+
+=head2 NOTES
+
+
+
 
 =head2 FILES
 
