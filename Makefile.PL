@@ -23,14 +23,11 @@ my $tests = join ' ',unix2os('t/Text/Column.t');
 WriteMakefile(
     NAME => 'Text::Column',
     DISTNAME => 'Text-Column',
-    VERSION  => '0.01',
+    VERSION  => '0.02',
     dist     => {COMPRESS => 'gzip',
                 'gz' => 'gz'},
     test     => {TESTS => $tests},
-    PREREQ_PM => {'File::TestPath' => '0',
-                  'File::SmartNL' => '0',
-                  'File::Package' => '0',
-                  'Test::Tech' => '1.08',},
+    
     
 
     ($] >= 5.005 ?     

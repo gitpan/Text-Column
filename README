@@ -5,11 +5,11 @@ Title Page
 
      Text::Column - Format tables from hashes and arrays suitable for PODs
 
-     Revision: -
+     Revision: A
 
-     Version: 0.01
+     Version: 0.02
 
-     Date: 2003/07/05
+     Date: 2003/07/27
 
      Prepared for: General Public 
 
@@ -24,12 +24,10 @@ Title Page
     files.
 
   1.1 Identification
-
     This release, identified in 3.2, is a collection of Perl modules that
     extend the capabilities of the Perl language.
 
   1.2 System overview
-
     The "Text::Column" module extends the Perl language (the system).
 
     The US DOD 2167A software development standard creates and cites a fully
@@ -50,8 +48,7 @@ Title Page
     by formatting raw array and hash data into tables for inclusion in PODS
 
   1.3 Document overview.
-
-    This document releases Text::Column version 0.01 providing a description
+    This document releases Text::Column version 0.02 providing a description
     of the inventory, installation instructions and other information
     necessary to utilize and track this release.
 
@@ -60,11 +57,10 @@ Title Page
     specification.
 
   3.1 Inventory of materials released.
-
     This document releases the file found at the following repository(s):
 
-       http://www.softwarediamonds/packages/Text-Column-0.01
-       http://www.perl.com/CPAN-local/authors/id/S/SO/SOFTDIA/Text-Column-0.01
+       http://www.softwarediamonds/packages/Text-Column-0.02
+       http://www.perl.com/CPAN-local/authors/id/S/SO/SOFTDIA/Text-Column-0.02
 
     Restrictions regarding duplication and license provisions are as
     follows:
@@ -103,30 +99,27 @@ Title Page
         OF SUCH DAMAGE.
 
   3.2 Inventory of software contents
-
     The content of the released, compressed, archieve file, consists of the
     following files:
 
      file                                                         version date       comment
      ------------------------------------------------------------ ------- ---------- ------------------------
-     lib/Docs/Site_SVD/Text_Column.pm                             0.01    2003/07/05 revised 0.01
-     MANIFEST                                                     0.01    2003/07/05 generated, replaces 0.01
-     Makefile.PL                                                  0.01    2003/07/05 generated, replaces 0.01
-     README                                                       0.01    2003/07/05 generated, replaces 0.01
-     lib/Text/Column.pm                                           1.09    2003/07/05 revised 1.08
-     t/Text/Column.d                                              0.03    2003/07/05 revised 0.02
-     t/Text/Column.pm                                             0.03    2003/07/05 revised 0.02
-     t/Text/Column.t                                              0.03    2003/07/05 revised 0.02
+     lib/Docs/Site_SVD/Text_Column.pm                             0.02    2003/07/27 revised 0.01
+     MANIFEST                                                     0.02    2003/07/27 generated, replaces 0.01
+     Makefile.PL                                                  0.02    2003/07/27 generated, replaces 0.01
+     README                                                       0.02    2003/07/27 generated, replaces 0.01
+     lib/Text/Column.pm                                           1.09    2003/07/05 unchanged
+     t/Text/Column.d                                              0.04    2003/07/27 revised 0.03
+     t/Text/Column.pm                                             0.01    2003/07/05 unchanged
+     t/Text/Column.t                                              0.04    2003/07/27 revised 0.03
+     tlib/File/Package.pm                                         1.1     2003/07/27 new
+     tlib/Test/Tech.pm                                            1.11    2003/07/27 new
 
   3.3 Changes
-
-    The file names from 0.01 were changed as follows:
-
-       return if $file =~ s=Text/Table=Text/Column=;
-
     The changes to the previous version are as follows:
 
-    Test::STD::STDutil 0.01
+    Test-STD-STDutil-0.01
+
         Rename Module
             At 02:44 AM 6/14/2003 +0200, Max Maischein wrote: A second thing
             that I would like you to reconsider is the naming of
@@ -143,39 +136,37 @@ Title Page
             Broke away the template and table routines from Test::TestUtil
             created this module Test::STD::STDutil.
 
-    Test::STD::STDutil 0.02
+    Test-STD-STDutil-0.02
         Use the new modules from the break-up of the "File::FileUtil" module
 
-    Text::Text 0.01
+    Text-Text-0.01
         Broke up the "Test::STD::STDutil" module and moved it to more
         appropriate places in the high level directory tree.
 
-    Text::Column 0.01
-        Chnaged name from Text::Table to Text::Column. Text::Table taken.
+    Text-Column-0.01
+        Changed name from Text::Table to Text::Column. Text::Table taken.
+
+    Text-Column-0.02
+        Change the test so that test support program modules resides in
+        distribution directory tlib directory instead of the lib directory.
+        Because they are no longer in the lib directory, test support files
+        will not be installed as a pre-condition for the test of this
+        module. The test of this module will precede immediately. The test
+        support files in the tlib directory will vanish after the
+        installtion.
 
   3.4 Adaptation data.
-
     This installation requires that the installation site has the Perl
-    programming language installed. Installation sites running Microsoft
-    Operating systems require the installation of Unix utilities. An
-    excellent, highly recommended Unix utilities for Microsoft operating
-    systems is unxutils by Karl M. Syring. A copy is available at the
-    following web sites:
-
-     http://unxutils.sourceforge.net
-     http://packages.SoftwareDiamnds.com
-
-    There are no other additional requirements or tailoring needed of
-    configurations files, adaptation data or other software needed for this
-    installation particular to any installation site.
+    programming language installed. There are no other additional
+    requirements or tailoring needed of configurations files, adaptation
+    data or other software needed for this installation particular to any
+    installation site.
 
   3.5 Related documents.
-
     There are no related documents needed for the installation and test of
     this release.
 
   3.6 Installation instructions.
-
     Instructions for installation, installation tests and installation
     support are as follows:
 
@@ -189,14 +180,11 @@ Title Page
 
         The distribution file is at the following respositories:
 
-           http://www.softwarediamonds/packages/Text-Column-0.01
-           http://www.perl.com/CPAN-local/authors/id/S/SO/SOFTDIA/Text-Column-0.01
+           http://www.softwarediamonds/packages/Text-Column-0.02
+           http://www.perl.com/CPAN-local/authors/id/S/SO/SOFTDIA/Text-Column-0.02
 
     Prerequistes.
-         'File::TestPath' => '0',
-         'File::SmartNL' => '0',
-         'File::Package' => '0',
-         'Test::Tech' => '1.08',
+         None.
 
     Security, privacy, or safety precautions.
         None.
@@ -214,7 +202,6 @@ Title Page
          603 882-0846 E<lt>support@SoftwareDiamonds.comE<gt>
 
   3.7 Possible problems and known errors
-
     There is still much work needed to ensure the quality of this module as
     follows:
 
@@ -240,4 +227,5 @@ Title Page
 
 2.0 SEE ALSO
     Text::Column
+    Docs::US_DOD::SVD
 
