@@ -10,8 +10,8 @@ use warnings;
 use warnings::register;
 
 use vars qw($VERSION $DATE $FILE);
-$VERSION = '1.1';
-$DATE = '2003/09/19';
+$VERSION = '1.11';
+$DATE = '2004/04/29';
 $FILE = __FILE__;
 
 use vars qw(@ISA @EXPORT_OK);
@@ -210,20 +210,42 @@ __END__
 Text::Column - format tables from specific array and hash structures
 
 =head1 SYNOPSIS
+ 
+  #####
+  # Subroutine interface
+  #
+  use Text::Column qw(format_hash_table format_array_table);
 
-  use Text::Column
+  $table = format_hash_table(\%hash, \@width, \@header);
+  $table = format_array_table(\@array, \@width, \@header);
 
-  $table = Text::Column->format_hash_table(\%hash, \@width, \@header)
-  $table = Text::Column->format_array_table(\@array, \@width, \@header)
+  #####
+  # Object interface
+  #
+  use Text::Column;
+
+  $table = Text::Column->format_hash_table(\%hash, \@width, \@header);
+  $table = Text::Column->format_array_table(\@array, \@width, \@header);
 
 =head1 DESCRIPTION
 
 The methods in this module are used to generate formated tables from the
 data in various specific array and hash structures.
+These subroutines are used in test software. 
+They are used to build simple inventory listings, 
+tracebility listins and such for PODs.
+Thus, the purpose is not to load them with a lot of word processing
+features but to keep them bare bones with as little code as possible.
+Feature creep is prohibited.
+The last thing need is a blue screen for out of a 100,000 line
+option ridden, ten layer deep objectize, word processor in
+the test software.
 
-=head2 format_array_table method
+=head1 SUBROUTINES
 
- $formated_table = Text::Column->format_array_table(\@array, \@width, \@header)
+=head2 format_array_table
+
+ $formated_table = format_array_table(\@array, \@width, \@header)
 
 The I<format_array_table> method provides a formatted table suitable for inclusion in
 a POD. The I<\@array> variable references an array of array references.
@@ -232,9 +254,9 @@ contains the items in column order for the row.
 The I<\@width> variable references the width of each column in column order
 while the I<\@header> references the table column names in column order. 
 
-=head2 format_hash_table method
+=head2 format_hash_table
 
- $table = Text::Column->format_hash_table(\%hash, \@width, \@header)
+ $table = format_hash_table(\%hash, \@width, \@header)
 
 The I<format_hash_table> method provides a formatted table suitable for inclusion in
 a POD. The I<\%array> variable references a hash of references to either arrays or hashes.
@@ -327,192 +349,45 @@ follow on the next lines. For example,
 
 =head1 QUALITY ASSURANCE
 
-Running the test script 'Column.t' found in
-the "Text-Column-$VERSION.tar.gz" distribution file verifies
+Running the test script C<Column.t> verifies
 the requirements for this module.
-
-All testing software and documentation
-stems from the 
-Software Test Description (L<STD|Docs::US_DOD::STD>)
-program module 't::Text::Column',
-found in the distribution file 
-"Text-Column-$VERSION.tar.gz". 
-
-The 't::Text::Column' L<STD|Docs::US_DOD::STD> POD contains
-a tracebility matix between the
-requirements established above for this module, and
-the test steps identified by a
-'ok' number from running the 'Column.t'
-test script.
-
-The t::Text::Column' L<STD|Docs::US_DOD::STD>
-program module '__DATA__' section contains the data 
-to perform the following:
-
-=over 4
-
-=item *
-
-to generate the test script 'Column.t'
-
-=item *
-
-generate the tailored 
-L<STD|Docs::US_DOD::STD> POD in
-the 't::Text::Column' module, 
-
-=item *
-
-generate the 'Column.d' demo script, 
-
-=item *
-
-replace the POD demonstration section
-herein with the demo script
-'Column.d' output, and
-
-=item *
-
-run the test script using Test::Harness
-with or without the verbose option,
-
-=back
-
-To perform all the above, prepare
-and run the automation software as 
-follows:
-
-=over 4
-
-=item *
-
-Install "Test_STDmaker-$VERSION.tar.gz"
-from one of the respositories only
-if it has not been installed:
-
-=over 4
-
-=item *
-
-http://www.softwarediamonds/packages/
-
-=item *
-
-http://www.perl.com/CPAN-local/authors/id/S/SO/SOFTDIA/
-
-=back
-  
-=item *
-
-manually place the script tmake.pl
-in "Test_STDmaker-$VERSION.tar.gz' in
-the site operating system executable 
-path only if it is not in the 
-executable path
-
-=item *
-
-place the 't::Text::Column' at the same
-level in the directory struture as the
-directory holding the 'Text::Column'
-module
-
-=item *
-
-execute the following in any directory:
-
- tmake -test_verbose -replace -run -pm=t::Text::Column
-
-=back
+The C<tmake.pl> cover script for L<Test::STDmaker|Test::STDmaker>
+automatically generated the
+C<Column.t> test script, C<Column.d> demo script,
+and C<t::Text::Column> program module POD,
+from the C<t::Text::Column> program module contents.
+The C<tmake.pl> cover script automatically ran the
+C<Column.d> demo script and inserted the results
+into the 'DEMONSTRATION' section above.
+The  C<t::Text::Column> program module
+is in the distribution file
+F<Text-Column-$VERSION.tar.gz>.
 
 =head1 NOTES
 
-=head2 FILES
-
-The installation of the
-"Text-Column-$VERSION.tar.gz" distribution file
-installs the 'Docs::Site_SVD::Text_Column'
-L<SVD|Docs::US_DOD::SVD> program module.
-
-The __DATA__ data section of the 
-'Docs::Site_SVD::Text_Column' contains all
-the necessary data to generate the POD
-section of 'Docs::Site_SVD::Text_Column' and
-the "Text-Column-$VERSION.tar.gz" distribution file.
-
-To make use of the 
-'Docs::Site_SVD::Text_Column'
-L<SVD|Docs::US_DOD::SVD> program module,
-perform the following:
-
-=over 4
-
-=item *
-
-install "ExtUtils-SVDmaker-$VERSION.tar.gz"
-from one of the respositories only
-if it has not been installed:
-
-=over 4
-
-=item *
-
-http://www.softwarediamonds/packages/
-
-=item *
-
-http://www.perl.com/CPAN-local/authors/id/S/SO/SOFTDIA/
-
-=back
-
-=item *
-
-manually place the script vmake.pl
-in "ExtUtils-SVDmaker-$VERSION.tar.gz' in
-the site operating system executable 
-path only if it is not in the 
-executable path
-
-=item *
-
-Make any appropriate changes to the
-__DATA__ section of the 'Docs::Site_SVD::Text_Column'
-module.
-For example, any changes to
-'Text::Column' will impact the
-at least 'Changes' field.
-
-=item *
-
-Execute the following:
-
- vmake readme_html all -pm=Docs::Site_SVD::Text_Column
-
-=back
-
-=head2 AUTHOR
+=head2 Author
 
 The holder of the copyright and maintainer is
 
 E<lt>support@SoftwareDiamonds.comE<gt>
 
-=head2 COPYRIGHT NOTICE
+=head2 Copyright Notice
 
 Copyrighted (c) 2002 Software Diamonds
 
 All Rights Reserved
 
-=head2 BINDING REQUIREMENTS NOTICE
+=head2 Binding Requirement Notice
 
 Binding requirements are indexed with the
 pharse 'shall[dd]' where dd is an unique number
 for each header section.
 This conforms to standard federal
-government practices, 490A (L<STD490A/3.2.3.6>).
+government practices, L<STD490A 3.2.3.6|Docs::US_DOD::STD490A/3.2.3.6>.
 In accordance with the License, Software Diamonds
 is not liable for any requirement, binding or otherwise.
 
-=head2 LICENSE
+=head2 License
 
 Software Diamonds permits the redistribution
 and use in source and binary forms, with or
@@ -555,23 +430,17 @@ OR TORT (INCLUDING USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF NEGLIGENCE OR OTHERWISE) ARISING IN
 ANY WAY OUT OF THE POSSIBILITY OF SUCH DAMAGE. 
 
-=for html
-<p><br>
-<!-- BLK ID="NOTICE" -->
-<!-- /BLK -->
-<p><br>
-<!-- BLK ID="OPT-IN" -->
-<!-- /BLK -->
-<p><br>
-<!-- BLK ID="EMAIL" -->
-<!-- /BLK -->
-<p><br>
-<!-- BLK ID="COPYRIGHT" -->
-<!-- /BLK -->
-<p><br>
-<!-- BLK ID="LOG_CGI" -->
-<!-- /BLK -->
-<p><br>
+=head1 SEE ALSO
+
+=over 4
+
+=item L<Docs::Site_SVD::Text_Column|Docs::Site_SVD::Text_Column>
+
+=item L<Test::STDmaker|Test::STDmaker>
+
+=item L<ExtUtils::SVDmaker|ExtUtils::SVDmaker> 
+
+=back
 
 =cut
 

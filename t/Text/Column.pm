@@ -10,8 +10,8 @@ use warnings;
 use warnings::register;
 
 use vars qw($VERSION $DATE $FILE );
-$VERSION = '0.03';
-$DATE = '2003/07/05';
+$VERSION = '0.04';
+$DATE = '2004/04/29';
 $FILE = __FILE__;
 
 ########
@@ -40,7 +40,7 @@ $FILE = __FILE__;
 
  Version: 
 
- Date: 2003/07/05
+ Date: 2003/07/31
 
  Prepared for: General Public 
 
@@ -436,15 +436,15 @@ and use in source and binary forms, with or
 without modification, provided that the 
 following conditions are met: 
 
-=over 4
+/=over 4
 
-=item 1
+/=item 1
 
 Redistributions of source code, modified or unmodified
 must retain the above copyright notice, this list of
 conditions and the following disclaimer. 
 
-=item 2
+/=item 2
 
 Redistributions in binary form must 
 reproduce the above copyright notice,
@@ -453,7 +453,7 @@ disclaimer in the documentation and/or
 other materials provided with the
 distribution.
 
-=back
+/=back
 
 SOFTWARE DIAMONDS, http://www.SoftwareDiamonds.com,
 PROVIDES THIS SOFTWARE 
