@@ -9,12 +9,13 @@ use strict;
 use warnings;
 use warnings::register;
 
-use Test ();   # do not import and "Test" subroutines
+use Test ();   # do not import the "Test" subroutines
+use Data::Strify qw(stringify);
 use Data::Dumper;
 
 use vars qw($VERSION $DATE $FILE);
-$VERSION = '1.11';
-$DATE = '2003/07/27';
+$VERSION = '1.13';
+$DATE = '2003/09/15';
 $FILE = __FILE__;
 
 use vars qw(@ISA @EXPORT_OK);
@@ -31,136 +32,134 @@ require Exporter;
 # Senseless to objectify "Test::Tech" if unless "Test" and "Data::Dumper"
 # are objectified
 #
+my $tech_p = new Test::Tech;  # quasi objectify by using $tech_p instead of %tech
 
-my %tech = ();
-my $tech_p = \%tech;  # quasi objectify by using $tech_p instead of %tech
-
-########
-# Tend to Data::Dumper variables
-#
-$tech_p->{Dumper} = {};
-$tech_p->{Dumper}->{Terse} = \$Data::Dumper::Terse;
-$tech_p->{Dumper}->{Indent} = \$Data::Indent;
-$tech_p->{Dumper}->{Purity} = \$Data::Purity;
-$tech_p->{Dumper}->{Pad} = \$Data::Pad;
-$tech_p->{Dumper}->{Varname} = \$Data::Varname;
-$tech_p->{Dumper}->{Useqq} = \$Data::Useqq;
-$tech_p->{Dumper}->{Freezer} = \$Data::Freezer;
-$tech_p->{Dumper}->{Toaster} = \$Data::Toaster;
-$tech_p->{Dumper}->{Deepcopy} = \$Data::Deepcopy;
-$tech_p->{Dumper}->{Quotekeys} = \$Data::Quotekeys;
-$tech_p->{Dumper}->{Maxdepth} = \$Data::Maxdepth;
-
-######
-# Tend to Test variables
-#  
-$tech_p->{Test}->{ntest} = \$Test::ntest;
-$tech_p->{Test}->{TESTOUT} = \$Test::TESTOUT;
-$tech_p->{Test}->{TestLevel} = \$Test::TestLevel;
-$tech_p->{Test}->{ONFAIL} = \$Test::ONFAIL;
-$tech_p->{Test}->{todo} = \%Test::todo;
-$tech_p->{Test}->{history} = \%Test::history;
-$tech_p->{Test}->{planned} = \$Test::planned;
-$tech_p->{Test}->{FAILDETAIL} = \@Test::FAILDETAIL;
-$tech_p->{Test}->{Program_Lines} = \%Test::Program_Lines if defined %Test::Program_lines; 
-$tech_p->{Test}->{TESTERR} = \$Test::TESTERR if defined $Test::TESTERR;
-$tech_p->{Skip_Tests} = 0;
-
-#######
-# Probe for internal storage
-#
-# The &Data::Dumper::Dumper subroutine stringifies the iternal Perl variable. 
-# Different Perls keep the have different internal formats for numbers. Some
-# keep them as binary numbers, while others as strings. The ones that keep
-# them as strings may be well spec. In any case they have been let loose in
-# the wild so the test scripts that use Data::Dumper must deal with them.
-#
-# This is perl, v5.6.1 built for MSWin32-x86-multi-thread 
-# (with 1 registered patch, see perl -V for more detail)
-#
-# Copyright 1987-2001, Larry Wall 
-#
-# Binary build 631 provided by ActiveState Tool Corp. http://www.ActiveState.com
-# Built 17:16:22 Jan 2 2002
-#
-#
-# Perl may be copied only under the terms of either the Artistic License or the
-# GNU General Public License, which may be found in the Perl 5 source kit.
-# 
-# Complete documentation for Perl, including FAQ lists, should be found on
-# this system using `man perl' or `perldoc perl'. If you have access to the
-# Internet, point your browser at http://www.perl.com/, the Perl Home Page.
-#
-# ~~~~~~~
-#
-# Wall, Christiansen and Orwant on Perl internal storage
-#
-# Page 351 of Programming Perl, Third Addition, Overloadable Operators
-# quote: 
-#
-# Conversion operators: ``'', 0+, bool
-#
-# These three keys let you provide behaviors for Perl's automatic conversions
-# to strings, numbers, and Boolean values, respectively.
-#
-# ~~~~~~~
-#
-# Internal Storage of Perls that are in the wild
-#
-# string - Perl v5.6.1 MSWin32-x86-multi-thread, ActiveState build 631, binary
-# number - Perl version 5.008 for solaris
-#
-# Perls in the wild with internal storage of string may be mutants that need to
-# be hunted down killed.
-#
-my $probe = 3;
-my $actual = Dumper([0+$probe]);
-if( $actual eq Dumper([3]) ) {
-   $tech_p->{Internal_Number} = 'number';
-}
-elsif ( $actual eq Dumper(['3']) ) {
-   $tech_p->{Internal_Number} = 'string';
-}
-else {
-   $tech_p->{Internal_Number} = 'undetermine';
-}
-  
-
-#####
-# Stringify the variable and compare the string.
-#
-# This is the code that adds the big new capability of testing complex data
-# structures to the "Test" module
-#
-sub stringify
+sub new
 {
-   my ($var_p) = @_;
 
-   return '' unless $var_p;
-   
-   my ($result, $ref);
-   if($ref = ref($var_p)) {
-       if( $ref eq 'ARRAY' ) { 
-           if( 1 < @$var_p ) {
-               $result = Dumper(@$var_p);
-           }
-           else {
-               $result = shift @$var_p;
-           }
-        }
-        elsif( $ref eq 'HASH' ) {
-           $result = Dumper(%$var_p);
-        } 
-        else {
-           $result = Dumper($var_p);
-        }
+   ####################
+   # $class is either a package name (scalar) or
+   # an object with a data pointer and a reference
+   # to a package name. A package name is also the
+   # name of a class
+   #
+   my ($class, @args) = @_;
+   $class = ref($class) if( ref($class) );
+   my $self = bless {}, $class;
+
+   ########
+   # Make  Data::Dumper variables visible to tech_config
+   #
+   $self->{Dumper} = new Data::Strify;
+
+   ######
+   # Make Test variables visible to tech_config
+   #  
+   $self->{Test}->{ntest} = \$Test::ntest;
+   $self->{Test}->{TESTOUT} = \$Test::TESTOUT;
+   $self->{Test}->{TestLevel} = \$Test::TestLevel;
+   $self->{Test}->{ONFAIL} = \$Test::ONFAIL;
+   $self->{Test}->{planned} = \$Test::planned;
+   $self->{Test}->{TESTERR} = \$Test::TESTERR if defined $Test::TESTERR; 
+
+   $self->{TestDefault}->{ntest} = $Test::ntest;
+   $self->{TestDefault}->{TESTOUT} = $Test::TESTOUT;
+   $self->{TestDefault}->{TestLevel} = $Test::TestLevel;
+   $self->{TestDefault}->{ONFAIL} = $Test::ONFAIL;
+   $self->{TestDefault}->{planned} = $Test::planned;
+   $self->{TestDefault}->{TESTERR} = $Test::TESTERR if defined $Test::TESTERR; 
+
+   ######
+   # Test::Tech object data
+   #
+   $self->{Skip_Tests} = 0;
+
+   #######
+   # Probe for internal storage
+   #
+   # The &Data::Dumper::Dumper subroutine stringifies the internal Perl variable. 
+   # Different Perls keep the have different internal formats for numbers. Some
+   # keep them as binary numbers, while others as strings. The ones that keep
+   # them as strings may be out of spec. In any case they have been let loose in
+   # the wild so the test scripts that use Data::Dumper must deal with them.
+   #
+   # This is perl, v5.6.1 built for MSWin32-x86-multi-thread 
+   # (with 1 registered patch, see perl -V for more detail)
+   #
+   # Copyright 1987-2001, Larry Wall 
+   #
+   # Binary build 631 provided by ActiveState Tool Corp. http://www.ActiveState.com
+   # Built 17:16:22 Jan 2 2002
+   #
+   #
+   # Perl may be copied only under the terms of either the Artistic License or the
+   # GNU General Public License, which may be found in the Perl 5 source kit.
+   # 
+   # Complete documentation for Perl, including FAQ lists, should be found on
+   # this system using `man perl' or `perldoc perl'. If you have access to the
+   # Internet, point your browser at http://www.perl.com/, the Perl Home Page.
+   #
+   # ~~~~~~~
+   #
+   # Wall, Christiansen and Orwant on Perl internal storage
+   #
+   # Page 351 of Programming Perl, Third Addition, Overloadable Operators
+   # quote: 
+   #
+   # Conversion operators: ``'', 0+, bool
+   #
+   # These three keys let you provide behaviors for Perl's automatic conversions
+   # to strings, numbers, and Boolean values, respectively.
+   #
+   # ~~~~~~~
+   #
+   # Internal Storage of Perls that are in the wild
+   #
+   # string - Perl v5.6.1 MSWin32-x86-multi-thread, ActiveState build 631, binary
+   # number - Perl version 5.008 for solaris
+   #
+   # Perls in the wild with internal storage of string may be mutants that need to
+   # be hunted down killed.
+   #
+   # The ActiveState v5.8 no longer produce a internal storage of string for 0+$number
+   #
+   my $probe = 3;
+   my $actual = Dumper([0+$probe]);
+   if( $actual eq Dumper([3]) ) {
+      $self->{Internal_Number} = 'number';
+   }
+   elsif ( $actual eq Dumper(['3']) ) {
+      $self->{Internal_Number} = 'string';
    }
    else {
-       $result  = $var_p;
+      $self->{Internal_Number} = 'undetermine';
    }
-   $result;
+
+   $self;
+}
+ 
+
+#####
+# Restore the Test:: and Data::Dumper back to where they were found
+#
+sub DESTROY
+{
+   my $self = UNIVERSAL::isa($_[0],__PACKAGE__) ? shift @_ : $tech_p;
+
+   return unless defined $self;
+
+   $Test::ntest = $self->{TestDefault}->{ntest};
+   $Test::TESTOUT = $self->{TestDefault}->{TESTOUT};
+   $Test::TestLevel = $self->{TestDefault}->{TestLevel};
+   $Test::ONFAIL = $self->{TestDefault}->{ONFAIL};
+   $Test::planned = $self->{TestDefault}->{planned};
+   $Test::TESTERR = $self->{TestDefault}->{TESTERR} if defined $Test::TESTERR;
+
+   $self->{Dumper}->finish( ) if defined $self->{Dumper};   
+
 }
 
+sub finish { DESTORY(@_) };
 
 
 ######
@@ -169,6 +168,12 @@ sub stringify
 #
 sub plan
 {
+   ######
+   # This subroutine uses no object data; therefore,
+   # drop any class or object.
+   #
+   my $self = UNIVERSAL::isa($_[0],__PACKAGE__) ? shift @_ : $tech_p;
+
    &Test::plan( @_ );
 
    ###############
@@ -201,7 +206,7 @@ sub plan
 EOF
 
    print $Test::TESTOUT <<"EOF";
-# Number Storage: $tech_p->{Internal_Number}
+# Number Storage: $self->{Internal_Number}
 # Test::Tech    : $VERSION
 # Data::Dumper  : $Data::Dumper::VERSION
 # =cut 
@@ -212,22 +217,34 @@ EOF
 
 
 ######
-#
 # Cover function for &Test::ok that adds capability to test 
 # complex data structures.
 #
 sub ok
 {
+   ######
+   # This subroutine uses no object data; therefore,
+   # drop any class or object.
+   #
+   my $self = UNIVERSAL::isa($_[0],__PACKAGE__) ? shift @_ : $tech_p;
+
    my ($actual_result, $expected_result, $diagnostic, $name) = @_;
 
+   ######### 
+   # Fill in undefined inputs
+   #
+   $name = '' unless defined $name; 
+   $diagnostic = $name unless $diagnostic;
+
    print $Test::TESTOUT "# $name\n" if $name;
-   if($tech_p->{Skip_Tests}) { # skip rest of tests switch
+   if($self->{Skip_Tests}) { # skip rest of tests switch
        print $Test::TESTOUT "# Test invalid because of previous failure.\n";
        &Test::skip( 1, 0, '');
        return 1; 
    }
 
    &Test::ok(stringify($actual_result), stringify($expected_result), $diagnostic);
+
 }
 
 
@@ -236,11 +253,17 @@ sub ok
 #
 sub skip
 {
+   ######
+   # This subroutine uses no object data; therefore,
+   # drop any class or object.
+   #
+   my $self = UNIVERSAL::isa($_[0],__PACKAGE__) ? shift @_ : $tech_p;
+
    my ($mod, $actual_result, $expected_result, $diagnostic, $name) = @_;
 
    print $Test::TESTOUT "# $name\n" if $name;
 
-   if($tech_p->{Skip_Tests}) {  # skip rest of tests switch
+   if($self->{Skip_Tests}) {  # skip rest of tests switch
        print $Test::TESTOUT "# Test invalid because of previous failure.\n";
        &Test::skip( 1, 0, '');
        return 1; 
@@ -256,9 +279,20 @@ sub skip
 #
 sub skip_tests
 {
+   ######
+   # This subroutine uses no object data; therefore,
+   # drop any class or object.
+   #
+   my $self = UNIVERSAL::isa($_[0],__PACKAGE__) ? shift @_ : $tech_p;
+
    my ($value) =  @_;
-   my $result = $tech_p->{Skip_Tests};
-   $tech_p->{Skip_Tests} = $value if defined $value;
+   my $result = $self->{Skip_Tests};
+   if (defined $value) {
+       $self->{Skip_Tests} = $value;
+   }
+   else {
+       $self->{Skip_Tests} = 1;
+   }
    $result;   
 }
 
@@ -272,69 +306,76 @@ sub skip_tests
 #
 sub tech_config
 {
-    my ($key, @values) = @_;
-    my @keys = split /\./, $key;
 
-    #########
-    # Follow the hash with the current
-    # dot index until there are no more
-    # hashes. Hopefully the dot hash 
-    # notation matches the structure.
-    #
-    my $key_p = $tech_p;
-    while (@keys) {
+   ######
+   # This subroutine uses no object data; therefore,
+   # drop any class or object.
+   #
+   my $self = UNIVERSAL::isa($_[0],__PACKAGE__) ? shift @_ : $tech_p;
 
-        $key = shift @keys;
+   my ($key, @values) = @_;
+   my @keys = split /\./, $key;
 
-        ######
-        # Do not allow creation of new configs
-        #
-        if( defined( $key_p->{$key}) ) {
+   #########
+   # Follow the hash with the current
+   # dot index until there are no more
+   # hashes. Hopefully the dot hash 
+   # notation matches the structure.
+   #
+   my $key_p = $self;
+   while (@keys) {
 
-            ########
-            # Follow the hash
-            # 
-            if( ref($key_p->{$key}) eq 'HASH' ) { 
-                $key_p  = $key_p->{$key};
-            }
-            else {
-               if(@keys) {
-                    warn( "More key levels than hashes.\n");
-                    return undef; 
-               } 
-               last;
-            }
-        }
-    }
+       $key = shift @keys;
+
+       ######
+       # Do not allow creation of new configs
+       #
+       if( defined( $key_p->{$key}) ) {
+
+           ########
+           # Follow the hash
+           # 
+           if( ref($key_p->{$key}) eq 'HASH' ) { 
+               $key_p  = $key_p->{$key};
+           }
+           else {
+              if(@keys) {
+                   warn( "More key levels than hashes.\n");
+                   return undef; 
+              } 
+              last;
+           }
+       }
+   }
 
 
-    #########
-    # References to arrays and scalars in the config may
-    # be transparent.
-    #
-    my $current_value = $key_p->{$key};
-    return $current_value if ref($current_value) eq 'HASH';
-    if (defined $values[0]) {
-        if(ref($key_p->{$key}) eq 'ARRAY') {
-            if( ref($values[0]) eq 'ARRAY' ) {
-                $key_p->{$key} = $values[0];
-            }
-            else {
-                my @current_value = @{$key_p->{$key}};
-                $key_p->{$key} = \@values;
-                return @current_value;
-            }
-        }
-        elsif( ref($key_p->{$key}) ) {
-            $current_value = ${$key_p->{$key}};
-            ${$key_p->{$key}} = $values[0];
-        }
-        else {
-            $key_p->{$key} = $values[0];
-        }
-    }
+   #########
+   # References to arrays and scalars in the config may
+   # be transparent.
+   #
+   my $current_value = $key_p->{$key};
+   return $current_value if ref($current_value) eq 'HASH';
+   if (defined $values[0]) {
+       if(ref($key_p->{$key}) eq 'ARRAY') {
+           if( ref($values[0]) eq 'ARRAY' ) {
+               $key_p->{$key} = $values[0];
+           }
+           else {
+               my @current_value = @{$key_p->{$key}};
+               $key_p->{$key} = \@values;
+               return @current_value;
+           }
+       }
+       elsif( ref($key_p->{$key}) ) {
+           $current_value = ${$key_p->{$key}};
+           ${$key_p->{$key}} = $values[0];
+       }
+       else {
+           $key_p->{$key} = $values[0];
+       }
+   }
 
-    $current_value;
+   $current_value;
 
 }
 
@@ -345,6 +386,13 @@ sub tech_config
 #
 sub demo
 {
+
+   ######
+   # This subroutine uses no object data; therefore,
+   # drop any class or object.
+   #
+   my $self = UNIVERSAL::isa($_[0],__PACKAGE__) ? shift @_ : $tech_p;
+
    my ($quoted_expression, @expression_results) = @_;
 
    #######
@@ -393,11 +441,17 @@ Test::Tech - adds skip_tests and test data structures capabilities to the "Test"
 
 =head1 SYNOPSIS
 
- use Test::Tech
+ #######
+ # Subroutine Interface (use to drop in for &Test::plan, &Test::ok, &Test::skip)
+ #  
+ use Test::Tech qw(plan, ok, skip, skip_tests, tech_config, stringify);
 
  @args    = tech_config( @args );
 
  $success = plan(@args);
+
+ $test_ok = ok(\%actual_results, \%expected_results, $diagnostic, $test_name);
+ $test_ok = skip($skip_test, \%actual_results,  \%expected_results, $diagnostic, $test_name);
 
  $test_ok = ok(\@actual_results, \@expected_results, $diagnostic, $test_name);
  $test_ok = skip($skip_test, \@actual_results,  \@expected_results, $diagnostic, $test_name);
@@ -408,9 +462,59 @@ Test::Tech - adds skip_tests and test data structures capabilities to the "Test"
  $state = skip_tests( $on_off );
  $state = skip_tests( );
 
- $string = stringify( $var );
+ $string = stringify( $var ); # imported from Data::Strify
+
+ finish( );
+
+
+ ###### 
+ # Test::Tech methods inherited by another Class
+ #
+ use Test::Tech;
+ use vars qw(@ISA);
+ @ISA = qw(Test::Tech);
+ 
+ @args    = __PACKAGE__->tech_config( @args );
+
+ $success = __PACKAGE__->plan(@args);
+
+ $test_ok = __PACKAGE__->ok(\@actual_results, \@expected_results, $diagnostic, $test_name);
+ $test_ok = __PACKAGE__->skip($skip_test, \@actual_results,  \@expected_results, $diagnostic, $test_name);
+
+ $test_ok = __PACKAGE__->ok($actual_results, $expected_results, $diagnostic, $test_name);
+ $test_ok = __PACKAGE__->skip($skip_test, $actual_results,  $expected_results, $diagnostic, $test_name);
+
+ $state = __PACKAGE__->skip_tests( $on_off );
+ $state = __PACKAGE__->skip_tests( );
+
+ $string = __PACKAGE__->stringify( $var ); 
+
+ __PACKAGE__->finish( );
+
+
+ ###### 
+ # Class Interface
+ #
+ use Test::Tech;
+ 
+ @args    = Test::Tech->tech_config( @args );
+
+ $success = Test::Tech->plan(@args);
+
+ $test_ok = Test::Tech->ok(\@actual_results, \@expected_results, $diagnostic, $test_name);
+ $test_ok = Test::Tech->skip($skip_test, \@actual_results,  \@expected_results, $diagnostic, $test_name);
+
+ $test_ok = Test::Tech->ok($actual_results, $expected_results, $diagnostic, $test_name);
+ $test_ok = Test::Tech->skip($skip_test, $actual_results,  $expected_results, $diagnostic, $test_name);
+
+ $state = Test::Tech->skip_tests( $on_off );
+ $state = Test::Tech->skip_tests( );
+
+ Test::Tech->finish( );
+
 
 =head1 DESCRIPTION
+
 The "Test::Tech" module extends the capabilities of the "Test" module.
 
 The design is simple. 
@@ -442,16 +546,6 @@ Method to generate demos that appear as an interactive
 session using the methods under test
 
 =back
-
-The Test::Tech module is an integral part of the US DOD SDT2167A bundle
-of modules.
-The dependency of the program modules in the US DOD STD2167A bundle is as follows:
-
- File::Package
-   File::SmartNL Test::STD::Scrub
-     Test::Tech
-        DataPort::FileType::FormDB DataPort::DataFile Test::STD::STDutil
-            Test::STDmaker ExtUtils::SVDmaker
 
 =head2 plan subroutine
 
@@ -583,11 +677,7 @@ below configuration variables
  Test.TESTOUT          \$Test::TESTOUT
  Test.TestLevel        \$Test::TestLevel
  Test.ONFAIL           \$Test::ONFAIL
- Test.todo             \%Test::todo
- Test.history          \%Test::history
  Test.planned          \$Test::planned
- Test.FAILDETAIL       \@Test::FAILDETAIL
- Test.Program_Lines    \%Test::Program_Lines
  Test.TESTERR          \$Test::TESTERR
  Skip_Tests            # boolean
  Internal_Number       # 'string' or 'number'
@@ -608,7 +698,98 @@ The variables for the top level 'Dumper' I<$dot_index> are
 established by "L<Data::Dumper|Data::Dumper>" module;
 for the top level 'Test', the "L<Test|Test>" module.
 
+=head2 finish subroutine/method
+
+Restores the 'Data::Dumper' and 'Test::' module variables.
+
+=head1 REQUIREMENTS
+
+Coming soon.
+
+=head1 QUALITY ASSURANCE
+
+Running the test script 'tech.t' found in
+the "Test-Tech-$VERSION.tar.gz" distribution file verifies
+the requirements for this module.
+
+The 'Test::Tech' module is tightly integrated on top
+of the 'Test' module.
+The tests consist of running a test script and comparing
+the complete output against a file that contains the
+complete expected output.
+The expected output file has everything, the functionally
+significant and the functionally insignificant.
+Slight variations between the 'Test' module versions
+that are functionally insignificant can cause 'tech.t'
+to fail.
+Thus, the "Test-Tech-$VERSION.tar.gz" distribution file contains
+a copy of version 1.15 and 1.24 of the 'Test' module
+and runs the tests using test two versions.
+
 =head1 NOTES
+
+=head2 FILES
+
+The installation of the
+"Test-Tech-$VERSION.tar.gz" distribution file
+installs the 'Docs::Site_SVD::Test_Tech'
+L<SVD|Docs::US_DOD::SVD> program module.
+
+The __DATA__ data section of the 
+'Docs::Site_SVD::Test_Tech' contains all
+the necessary data to generate the POD
+section of 'Docs::Site_SVD::Test_Tech' and
+the "Test-Tech-$VERSION.tar.gz" distribution file.
+
+To make use of the 
+'Docs::Site_SVD::Test_Tech'
+L<SVD|Docs::US_DOD::SVD> program module,
+perform the following:
+
+=over 4
+
+=item *
+
+install "ExtUtils-SVDmaker-$VERSION.tar.gz"
+from one of the respositories only
+if it has not been installed:
+
+=over 4
+
+=item *
+
+http://www.softwarediamonds/packages/
+
+=item *
+
+http://www.perl.com/CPAN-local/authors/id/S/SO/SOFTDIA/
+
+=back
+
+=item *
+
+manually place the script vmake.pl
+in "ExtUtils-SVDmaker-$VERSION.tar.gz' in
+the site operating system executable 
+path only if it is not in the 
+executable path
+
+=item *
+
+Make any appropriate changes to the
+__DATA__ section of the 'Docs::Site_SVD::Test_Tech'
+module.
+For example, any changes to
+'File::Package' will impact the
+at least 'Changes' field.
+
+=item *
+
+Execute the following:
+
+ vmake readme_html all -pm=Docs::Site_SVD::Test_Tech
+
+=back
 
 =head2 AUTHOR
 
@@ -674,10 +855,6 @@ OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF NEGLIGENCE OR OTHERWISE) ARISING IN
 ANY WAY OUT OF THE POSSIBILITY OF SUCH DAMAGE. 
-
-=head1 SEE ALSO
-
-L<Test> L<Test::TestUtil>
 
 =for html
 <p><br>
